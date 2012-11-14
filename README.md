@@ -18,6 +18,13 @@ Or install it yourself as:
 
     $ gem install wd_sinatra_active_record
 
+
+Don't forget to set a gem dependency for the DB adapter you need.
+For instance:
+
+    activerecord-mysql2-adapter
+
+
 ## Usage
 
 Add an ActiveRecord `database.yml` file in your config folder and then require this
