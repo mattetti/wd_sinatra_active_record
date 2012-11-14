@@ -9,7 +9,9 @@ module WdSinatraActiveRecord
 
   # Path to the rake task file so it can be loaded as such:
   #     load WdSinatraActiveRecord.task_path
-  #
+  # (Note that the app loaded should have been started using something like:
+  #   WDSinatra::AppLoader.console(RAKE_APP_ROOT)
+  # before loading this rake task.)
   def self.task_path
     File.join(File.expand_path(File.dirname(__FILE__), ".."), "wd_sinatra_active_record", "db.rake")
   end

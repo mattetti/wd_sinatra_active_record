@@ -69,9 +69,20 @@ Then in your `app.rb` after requiring this gem:
 Then whichever `ActiveRecord` that needs to connect to the secondary DB
 can inherit from `SecondaryConnection` instead of `ActiveRecord::Base`.
 
+A Rake task file is also provided so you can load ActiveRecord specific
+tasks. To do that, create a new rake file in your lib/tasks folder, load
+`WDSinatra` and the rake task file:
 
-A rake file with some tasks is also available but I won't support that
-feature for now.
+```
+$ echo "WDSinatra::AppLoader.console(RAKE_APP_ROOT)
+load WdSinatraActiveRecord.task_path" > lib/tasks/db.rake
+```
+
+The tasks are very basic and mainly copied from Rails, feel free to send
+patches and improvements.
+
+(Note: WDSinatra version older than 1.0.4 require that you update the
+Rakefile in your project.)
 
 ## Contributing
 
