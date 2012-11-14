@@ -7,6 +7,13 @@ ActiveRecord::Base.default_timezone = :utc
 
 module WdSinatraActiveRecord
 
+  # Path to the rake task file so it can be loaded as such:
+  #     load WdSinatraActiveRecord.task_path
+  #
+  def self.task_path
+    File.join(File.expand_path(File.dirname(__FILE__), ".."), "wd_sinatra_active_record", "db.rake")
+  end
+
   ##### DB Connection ########
   module DBConnector
     DB_CONFIG = YAML.load_file(File.join(WDSinatra::AppLoader.root_path, "config", "database.yml"))

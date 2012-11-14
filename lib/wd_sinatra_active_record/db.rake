@@ -1,10 +1,11 @@
 # require 'active_support/core_ext/object/inclusion'
+require 'wd_sinatra_active_record'
 
 db_namespace = namespace :db do
 
   task :load_config => :setup_app do
     require 'active_record'
-    ActiveRecord::Base.configurations = DBConnector.db_configuration
+    ActiveRecord::Base.configurations = WdSinatraActiveRecord::DBConnector.db_configuration
     ActiveRecord::Migrator.migrations_paths = [File.join(WDSinatra::AppLoader.root_path, 'db/migrate')]
   end
 
@@ -13,7 +14,7 @@ db_namespace = namespace :db do
     old_connect_env = ENV['DONT_CONNECT'] ? 'true' : nil
     ENV['DONT_CONNECT'] = 'true'
     Rake::Task["db:load_config"].invoke
-    create_database(DBConnector.db_configuration)
+    create_database(WdSinatraActiveRecord::DBConnector.db_configuration)
     ENV['DONT_CONNECT'] = old_connect_env
   end
 
@@ -96,7 +97,7 @@ db_namespace = namespace :db do
   desc 'Drops the database for the current RACK_ENV (use db:drop:all to drop all databases)'
   task :drop do
     Rake::Task["db:load_config"].invoke
-    config = DBConnector.db_configuration
+    config = WdSinatraActiveRecord::DBConnector.db_configuration
     begin
       drop_database(config)
     rescue Exception => e
@@ -160,7 +161,7 @@ db_namespace = namespace :db do
 
     desc 'Display status of migrations'
     task :status => [:environment, :load_config] do
-      config = DBConnector.db_configuration
+      config = WdSinatraActiveRecord::DBConnector.db_configuration
       ActiveRecord::Base.establish_connection(config)
       unless ActiveRecord::Base.connection.table_exists?(ActiveRecord::Migrator.schema_migrations_table_name)
         puts 'Schema migrations table does not exist yet.'
@@ -208,7 +209,7 @@ db_namespace = namespace :db do
 
   # desc "Retrieves the charset for the current environment's database"
   task :charset => :setup_app do
-    config = DBConnector.db_configuration
+    config = WdSinatraActiveRecord::DBConnector.db_configuration
     case config['adapter']
     when /mysql/
       ActiveRecord::Base.establish_connection(config)
@@ -226,7 +227,7 @@ db_namespace = namespace :db do
 
   # desc "Retrieves the collation for the current environment's database"
   task :collation => :setup_app do
-    config = DBConnector.db_configuration
+    config = WdSinatraActiveRecord::DBConnector.db_configuration
     case config['adapter']
     when /mysql/
       ActiveRecord::Base.establish_connection(config)
@@ -319,16 +320,14 @@ db_namespace = namespace :db do
       require 'active_record/schema_dumper'
       filename = ENV['SCHEMA'] || "#{WDSinatra::AppLoader.root_path}/db/schema.rb"
       File.open(filename, "w:utf-8") do |file|
-        ActiveRecord::Base.establish_connection(DBConnector.db_configuration)
+        ActiveRecord::Base.establish_connection(WdSinatraActiveRecord::DBConnector.db_configuration)
         ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
       end
       db_namespace['schema:dump'].reenable
     end
 
     desc 'Load a schema.rb file into the database'
-    task :load do
-      root = File.expand_path('../..', File.dirname(__FILE__))
-      WDSinatra::AppLoader.console(root)
+    task :load => :environment do
       file = ENV['SCHEMA'] || "#{WDSinatra::AppLoader.root_path}/db/schema.rb"
       if File.exists?(file)
         load(file)
@@ -341,7 +340,7 @@ db_namespace = namespace :db do
   namespace :structure do
     desc 'Dump the database structure to an SQL file'
     task :dump => :setup_app do
-      abcs = DBConnector.db_configuration
+      abcs = WdSinatraActiveRecord::DBConnector.db_configuration
       case abcs[RACK_ENV]['adapter']
       when /mysql/, 'oci', 'oracle'
         ActiveRecord::Base.establish_connection(config)
@@ -378,7 +377,7 @@ db_namespace = namespace :db do
   namespace :test do
     # desc "Recreate the test database from the current schema.rb"
     task :load => 'db:test:purge' do
-      ActiveRecord::Base.establish_connection(DBConnector.db_configuration('test'))
+      ActiveRecord::Base.establish_connection(WdSinatraActiveRecord::DBConnector.db_configuration('test'))
       ActiveRecord::Schema.verbose = false
       db_namespace['schema:load'].invoke
     end
@@ -422,7 +421,7 @@ db_namespace = namespace :db do
 
     # desc "Empty the test database"
     task :purge => :setup_app do
-      abcs = DBConnector.db_configuration('test')
+      abcs = WdSinatraActiveRecord::DBConnector.db_configuration('test')
       case abcs['adapter']
       when /mysql/
         ActiveRecord::Base.establish_connection(abcs)
