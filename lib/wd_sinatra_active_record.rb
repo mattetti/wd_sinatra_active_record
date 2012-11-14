@@ -72,7 +72,4 @@ module WdSinatraActiveRecord
 
   end
 
-  DBConnector.set_db_connection
-  DBConnector.connect_to_db unless ENV['DONT_CONNECT']
-
 end

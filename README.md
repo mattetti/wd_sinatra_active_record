@@ -1,7 +1,10 @@
 # WdSinatraActiveRecord
 
-Some code to avoid reinventing the wheel every time you want to use
-ActiveRecord in a WeaselDiesel app backed by Sinatra.
+A Ruby gem to avoid reinventing the wheel every time you want to use
+`ActiveRecord` in a [WeaselDiesel](https://github.com/mattetti/Weasel-Diesel) app backed by Sinatra ([wd_sinatra](https://github.com/mattetti/wd-sinatra)).
+
+Use this gem to easily get connected to one or multiple databases and to
+enjoy some of the common ActiveRecord Rake tasks available in Rails.
 
 
 ## Installation
@@ -22,13 +25,18 @@ Or install it yourself as:
 Don't forget to set a gem dependency for the DB adapter you need.
 For instance:
 
-    activerecord-mysql2-adapter
+    mysql2
 
 
 ## Usage
 
 Add an ActiveRecord `database.yml` file in your config folder and then require this
-gem in your `app.rb` file.
+gem in your `app.rb` file and connect to the DB:
+
+    require 'wd_sinatra_active_record'
+    WdSinatraActiveRecord::DBConnector.set_db_connection
+    WdSinatraActiveRecord::DBConnector.connect_to_db unless ENV['DONT_CONNECT']
+
 
 The DB settings can be accessed via:
 
@@ -51,7 +59,7 @@ add a new entry to your `database.yml` config file:
         adapter: mysql2
         encoding: utf8
         reconnect: true
-        database: app_development
+        database: secondary_development
         pool: 5
         username: root
         password:
@@ -69,20 +77,21 @@ Then in your `app.rb` after requiring this gem:
 Then whichever `ActiveRecord` that needs to connect to the secondary DB
 can inherit from `SecondaryConnection` instead of `ActiveRecord::Base`.
 
+## Rake tasks
+
 A Rake task file is also provided so you can load ActiveRecord specific
 tasks. To do that, create a new rake file in your lib/tasks folder, load
 `WDSinatra` and the rake task file:
 
 ```
-$ echo "WDSinatra::AppLoader.console(RAKE_APP_ROOT)
+$ echo "require 'wd_sinatra_active_record'
 load WdSinatraActiveRecord.task_path" > lib/tasks/db.rake
 ```
 
 The tasks are very basic and mainly copied from Rails, feel free to send
 patches and improvements.
 
-(Note: WDSinatra version older than 1.0.4 require that you update the
-Rakefile in your project.)
+(Note: WDSinatra version 1.0.4 or newer required)
 
 ## Contributing
 
